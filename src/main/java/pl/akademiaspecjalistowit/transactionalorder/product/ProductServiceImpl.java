@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @AllArgsConstructor
 @Service
@@ -23,9 +22,8 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    @Transactional
     public List<ProductDto> getProducts() {
         List<ProductEntity> all = productRepository.findAll();
-       return all.stream().map(e -> new ProductDto(e.getName(), e.getQuantity())).toList();
+        return all.stream().map(e -> new ProductDto(e.getName(), e.getQuantity())).toList();
     }
 }
