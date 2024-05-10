@@ -47,7 +47,13 @@ public class ProductEntity {
         return Objects.hash(name, quantity);
     }
 
-    public void checkAvailabilityForOrder(OrderEntity orderEntity) {
+
+    public void applyOrder(OrderEntity orderEntity){
+        checkAvailabilityForOrder(orderEntity);
+        this.quantity -= orderEntity.getQuantity();
+    }
+
+    private void checkAvailabilityForOrder(OrderEntity orderEntity) {
         if (this.quantity.compareTo(orderEntity.getQuantity()) < 0) {
             throw new ProductException("Ilość produktów nie jest wystarczająca");
         }

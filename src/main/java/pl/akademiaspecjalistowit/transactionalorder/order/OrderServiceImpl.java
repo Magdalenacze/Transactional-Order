@@ -19,15 +19,17 @@ public class OrderServiceImpl implements OrderService {
         OrderEntity orderEntity = new OrderEntity(
             orderDto.getProductName(),
             orderDto.getQuantity());
-        OrderEntity orderEntityAfterValidations = checkProductAvailability(orderEntity);
+        Optional<ProductEntity> productByName = productReadService.getProductByName(orderEntity.getProductName());
+
+        OrderEntity orderEntityAfterValidations = updateWarehouseState(orderEntity,productByName);
         orderRepository.save(orderEntityAfterValidations);
     }
 
-    private OrderEntity checkProductAvailability(OrderEntity orderEntity) {
-        Optional<ProductEntity> productByName = productReadService.getProductByName(orderEntity.getProductName());
+    private OrderEntity updateWarehouseState(OrderEntity orderEntity,
+                                             Optional<ProductEntity> productByName) {
         return productByName.map(product -> {
             try {
-                product.checkAvailabilityForOrder(orderEntity);
+                product.applyOrder(orderEntity);
             } catch (ProductException e) {
                 throw new OrderServiceException(
                     "Zamównie nie może być zrealizowane ponieważ ilosć " +
