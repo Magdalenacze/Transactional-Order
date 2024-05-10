@@ -9,6 +9,7 @@ import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import pl.akademiaspecjalistowit.transactionalorder.order.OrderEntity;
 
 @Entity
 @Getter
@@ -46,7 +47,9 @@ public class ProductEntity {
         return Objects.hash(name, quantity);
     }
 
-    public void updateQuantity(int decreadeBy){
-        quantity = quantity - decreadeBy;
+    public void checkAvailabilityForOrder(OrderEntity orderEntity) {
+        if (this.quantity.compareTo(orderEntity.getQuantity()) < 0) {
+            throw new ProductException("Ilość produktów nie jest wystarczająca");
+        }
     }
 }
