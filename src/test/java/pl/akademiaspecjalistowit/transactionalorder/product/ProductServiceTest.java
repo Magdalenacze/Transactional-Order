@@ -6,10 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 @SpringBootTest
 class ProductServiceTest {
@@ -17,7 +15,7 @@ class ProductServiceTest {
     @Autowired
     private ProductService productService;
 
-    @MockBean
+    @Autowired
     private ProductRepository productRepository;
 
 
@@ -49,10 +47,7 @@ class ProductServiceTest {
     void should_get_product() {
         //given
         ProductDto exampleProduct = new ProductDto("test2", 20);
-        ProductEntity referenceEntity = new ProductEntity(
-            exampleProduct.getName(),
-            exampleProduct.getQuantity());
-        Mockito.doReturn(List.of(referenceEntity)).when(productRepository).findAll();
+        productService.addProduct(exampleProduct);
 
         //when
         List<ProductDto> products = productService.getProducts();

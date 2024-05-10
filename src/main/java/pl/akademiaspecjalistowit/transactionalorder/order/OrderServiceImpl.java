@@ -29,7 +29,6 @@ public class OrderServiceImpl implements OrderService {
             try {
                 product.checkAvailabilityForOrder(orderEntity);
             } catch (ProductException e) {
-
                 throw new OrderServiceException(
                     "Zamównie nie może być zrealizowane ponieważ ilosć " +
                         "pozycji w magazynie jest niewystarczająca");
