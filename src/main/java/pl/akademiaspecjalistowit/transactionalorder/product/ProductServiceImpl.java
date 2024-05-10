@@ -2,10 +2,13 @@ package pl.akademiaspecjalistowit.transactionalorder.product;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @AllArgsConstructor
 @Service
+@Slf4j
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
@@ -14,11 +17,15 @@ public class ProductServiceImpl implements ProductService {
     public void addProduct(ProductDto productDto) {
         ProductEntity productEntity =
             new ProductEntity(productDto.getName(), productDto.getQuantity());
+
         productRepository.save(productEntity);
     }
 
+
     @Override
+    @Transactional
     public List<ProductDto> getProducts() {
-        throw new RuntimeException("get products is not implemented YET");
+        List<ProductEntity> all = productRepository.findAll();
+       return all.stream().map(e -> new ProductDto(e.getName(), e.getQuantity())).toList();
     }
 }
