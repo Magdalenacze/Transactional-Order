@@ -3,6 +3,7 @@ package pl.akademiaspecjalistowit.transactionalorder.order;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.akademiaspecjalistowit.transactionalorder.product.ProductEntity;
 import pl.akademiaspecjalistowit.transactionalorder.product.ProductException;
 import pl.akademiaspecjalistowit.transactionalorder.product.ProductReadService;
@@ -13,8 +14,10 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductReadService productReadService;
+    private final OrderPlacedEventListener orderPlacedEventListener;
 
     @Override
+    @Transactional
     public void placeAnOrder(OrderDto orderDto) {
         OrderEntity orderEntity = new OrderEntity(
             orderDto.getProductName(),
@@ -23,6 +26,7 @@ public class OrderServiceImpl implements OrderService {
 
         OrderEntity orderEntityAfterValidations = updateWarehouseState(orderEntity,productByName);
         orderRepository.save(orderEntityAfterValidations);
+        orderPlacedEventListener.notifyOrderPlaced(orderEntityAfterValidations);
     }
 
     private OrderEntity updateWarehouseState(OrderEntity orderEntity,
