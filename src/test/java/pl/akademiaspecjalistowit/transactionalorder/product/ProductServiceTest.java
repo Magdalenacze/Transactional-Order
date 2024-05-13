@@ -62,7 +62,7 @@ class ProductServiceTest {
     }
 
     @Test
-    public void zero_product_quantity_is_removed_from_the_database() {
+    public void product_with_zero_quantity_due_to_order_placement_is_removed() {
         //given
         int initialPizzaQuantity = 12;
         ProductDto pizza = new ProductDto("pizza", initialPizzaQuantity);

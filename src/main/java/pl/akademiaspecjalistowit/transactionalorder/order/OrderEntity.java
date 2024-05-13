@@ -1,12 +1,10 @@
 package pl.akademiaspecjalistowit.transactionalorder.order;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import pl.akademiaspecjalistowit.transactionalorder.product.ProductEntity;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,6 +18,10 @@ public class OrderEntity {
     private String productName;
 
     private Integer quantity;
+
+    @OneToOne
+    @JoinColumn(name = "product_id")
+    private ProductEntity productEntity;
 
     public OrderEntity(String productName, Integer quantity) {
         validate(quantity);
