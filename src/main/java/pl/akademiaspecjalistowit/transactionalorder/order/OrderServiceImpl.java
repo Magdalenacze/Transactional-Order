@@ -1,6 +1,5 @@
 package pl.akademiaspecjalistowit.transactionalorder.order;
 
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,29 +18,22 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void placeAnOrder(OrderDto orderDto) {
-        OrderEntity orderEntity = new OrderEntity(
-            orderDto.getProductName(),
-            orderDto.getQuantity());
-        Optional<ProductEntity> productByName = productReadService.getProductByName(orderEntity.getProductName());
-
-        OrderEntity orderEntityAfterValidations = updateWarehouseState(orderEntity,productByName);
-        orderRepository.save(orderEntityAfterValidations);
-        orderPlacedEventListener.notifyOrderPlaced(orderEntityAfterValidations);
+        OrderEntity orderEntity = productReadService.getProductByName(orderDto.getProductName())
+                .map(productEntity -> {
+                    return placeAnOrderWithStockUpdates(orderDto, productEntity);
+                }).orElseThrow(() -> new OrderServiceException("Zamówienie nie może być zrealizowane, " +
+                        "ponieważ zawiera pozycję niedostępną w magazynie"));
+        orderRepository.save(orderEntity);
+        orderPlacedEventListener.notifyOrderPlaced(orderEntity);
     }
 
-    private OrderEntity updateWarehouseState(OrderEntity orderEntity,
-                                             Optional<ProductEntity> productByName) {
-        return productByName.map(product -> {
-            try {
-                product.applyOrder(orderEntity);
-            } catch (ProductException e) {
-                throw new OrderServiceException(
-                    "Zamównie nie może być zrealizowane ponieważ ilosć " +
-                        "pozycji w magazynie jest niewystarczająca");
-            }
-            return orderEntity;
-        }).orElseThrow(() -> new OrderServiceException("Zamównie nie moze być realizowane, ponieważ " +
-            "zawiera pozycje niedostępną w magazynie"));
+    private static OrderEntity placeAnOrderWithStockUpdates(OrderDto orderDto, ProductEntity productEntity) {
+        try {
+            return new OrderEntity(productEntity, orderDto.getQuantity());
+        } catch (ProductException e) {
+            throw new OrderServiceException(
+                    "Zamówienie nie może być zrealizowane, ponieważ ilość pozycji " +
+                            "w magazynie jest niewystarczająca");
+        }
     }
-
 }

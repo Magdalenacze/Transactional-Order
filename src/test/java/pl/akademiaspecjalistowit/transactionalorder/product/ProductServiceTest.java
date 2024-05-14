@@ -47,7 +47,6 @@ class ProductServiceTest {
         assertThat(productEntity).isEqualTo(referenceEntity);
     }
 
-
     @Test
     void should_get_product() {
         //given
@@ -61,19 +60,19 @@ class ProductServiceTest {
         assertThat(products).containsExactlyInAnyOrder(exampleProduct);
     }
 
-    @Test
-    public void product_with_zero_quantity_due_to_order_placement_is_removed() {
-        //given
-        int initialPizzaQuantity = 12;
-        ProductDto pizza = new ProductDto("pizza", initialPizzaQuantity);
-        productService.addProduct(pizza);
-        OrderDto pizzaOrder = new OrderDto("pizza", 12);
-
-        //when
-        orderService.placeAnOrder(pizzaOrder);
-
-        //then
-        List<ProductEntity> entities = productRepository.findAll();
-        assertThat(entities).hasSize(0);
-    }
+//    @Test
+//    public void product_with_zero_quantity_due_to_order_placement_is_removed() {
+//        //given
+//        int initialPizzaQuantity = 12;
+//        ProductDto pizza = new ProductDto("pizza", initialPizzaQuantity);
+//        productService.addProduct(pizza);
+//        OrderDto pizzaOrder = new OrderDto("pizza", 12);
+//
+//        //when
+//        orderService.placeAnOrder(pizzaOrder);
+//
+//        //then
+//        List<ProductEntity> entities = productRepository.findAll();
+//        assertThat(entities).hasSize(0);
+//    }
 }

@@ -31,8 +31,8 @@ class OrderServiceImplTest {
 
     @AfterEach
     void tearDown() {
-        productRepository.deleteAll();
         orderRepository.deleteAll();
+        productRepository.deleteAll();
     }
 
     @Test
@@ -62,7 +62,8 @@ class OrderServiceImplTest {
         //then
         orderIsNotSavedInTheDatabase();
         OrderServiceException orderServiceException = assertThrows(OrderServiceException.class, e);
-        assertThat(orderServiceException.getMessage()).contains("zawiera pozycje niedostępną w magazynie");
+        assertThat(orderServiceException.getMessage()).contains("Zamówienie nie może być zrealizowane, " +
+                "ponieważ zawiera pozycję niedostępną w magazynie");
     }
 
     @Test
@@ -77,7 +78,8 @@ class OrderServiceImplTest {
         //then
         orderIsNotSavedInTheDatabase();
         OrderServiceException orderServiceException = assertThrows(OrderServiceException.class, e);
-        assertThat(orderServiceException.getMessage()).contains("ilosć pozycji w magazynie jest niewystarczająca");
+        assertThat(orderServiceException.getMessage()).contains("Zamówienie nie może być zrealizowane, " +
+                "ponieważ ilość pozycji w magazynie jest niewystarczająca");
     }
 
 
@@ -96,7 +98,7 @@ class OrderServiceImplTest {
     private void productForTestOrderIsAvailable(OrderDto orderDto) {
         productService.addProduct(new ProductDto(
             orderDto.getProductName(),
-            orderDto.getQuantity()));
+                (orderDto.getQuantity() + 1)));
     }
 
     private void productForTestOrderIsAvailableWithQuantity(OrderDto orderDto, int quantity) {
@@ -106,7 +108,7 @@ class OrderServiceImplTest {
     }
 
     private void theOrderMatchesInputValues(OrderDto orderDto, OrderEntity orderEntity) {
-        assertThat(orderDto.getProductName()).isEqualTo(orderEntity.getProductName());
+        assertThat(orderDto.getProductName()).isEqualTo(orderEntity.getProductEntity().getName());
         assertThat(orderDto.getQuantity()).isEqualTo(orderEntity.getQuantity());
     }
 

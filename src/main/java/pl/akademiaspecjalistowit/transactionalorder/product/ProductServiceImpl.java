@@ -40,6 +40,6 @@ public class ProductServiceImpl implements ProductService, ProductReadService, O
 
     @Override
     public void notifyOrderPlaced(OrderEntity orderEntityAfterValidations) {
-        removeBoughtOutProductsByName(orderEntityAfterValidations.getProductName());
+        removeBoughtOutProductsByName(orderEntityAfterValidations.getProductEntity().getName());
     }
 }
