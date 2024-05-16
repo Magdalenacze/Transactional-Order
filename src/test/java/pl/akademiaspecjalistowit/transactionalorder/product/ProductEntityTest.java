@@ -59,4 +59,17 @@ class ProductEntityTest {
         assertThat(productEntityList.get(1).getQuantity())
                 .isEqualTo(initialQuantity - orderEntity.getQuantity());
     }
+
+    @Test
+    public void canceled_order_increases_product_amount() {
+        //given
+        int initialQuantity = 12;
+        ProductEntity productEntity = new ProductEntity("pizza", initialQuantity);
+
+        //when
+        productEntity.updateProductStockStatusAfterCancelingOrder(10);
+
+        //then
+        assertThat(productEntity.getQuantity()).isEqualTo(initialQuantity + 10);
+    }
 }

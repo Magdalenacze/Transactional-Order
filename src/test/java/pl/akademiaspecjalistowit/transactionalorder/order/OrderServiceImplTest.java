@@ -1,6 +1,7 @@
 package pl.akademiaspecjalistowit.transactionalorder.order;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import pl.akademiaspecjalistowit.transactionalorder.product.ProductDto;
+import pl.akademiaspecjalistowit.transactionalorder.product.ProductEntity;
 import pl.akademiaspecjalistowit.transactionalorder.product.ProductRepository;
 import pl.akademiaspecjalistowit.transactionalorder.product.ProductService;
 
@@ -92,6 +94,53 @@ class OrderServiceImplTest {
 
         //then
         orderIsNotSavedInTheDatabase();
+    }
+
+    @Test
+    public void order_will_not_be_canceled_if_order_is_not_exist() {
+        //given
+        ProductDto productDto = new ProductDto("pizza", 3);
+        productService.addProduct(productDto);
+        OrderDto orderDto = new OrderDto(List.of("pizza"), 1);
+
+        //when
+        Executable e = () -> orderService.cancelOrder(-1l);
+
+        //then
+        OrderServiceException orderServiceException = assertThrows(OrderServiceException.class, e);
+        assertThat(orderServiceException.getMessage()).contains("Zamówienie nie zostało anulowane, " +
+                "ponieważ takie nie istnieje");
+    }
+
+    @Test
+    public void should_cancel_the_existing_order_successfully() {
+        //given
+        ProductDto productDto = new ProductDto("pizza", 3);
+        productService.addProduct(productDto);
+        OrderDto orderDto = new OrderDto(List.of("pizza"), 1);
+        orderService.placeAnOrder(orderDto);
+
+        //when
+        Executable e = () -> orderService.cancelOrder(2l);
+
+        //then
+        assertDoesNotThrow(e);
+    }
+
+    @Test
+    public void should_delete_the_existing_order_successfully() {
+        //given
+        ProductDto productDto = new ProductDto("pizza", 3);
+        productService.addProduct(productDto);
+        OrderDto orderDto = new OrderDto(List.of("pizza"), 1);
+        orderService.placeAnOrder(orderDto);
+
+        //when
+        orderService.realizationOrder(3l);
+
+        //then
+        List<OrderEntity> all = orderRepository.findAll();
+        assertThat(all).hasSize(0);
     }
 
     private void productForTestOrderIsAvailable(OrderDto orderDto) {

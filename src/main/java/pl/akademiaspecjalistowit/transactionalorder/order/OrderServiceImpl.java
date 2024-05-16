@@ -32,6 +32,22 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(orderEntity);
     }
 
+    @Override
+    public void realizationOrder(Long id) {
+        orderRepository.deleteById(id);
+    }
+
+    @Override
+    public void cancelOrder(Long id) {
+        Optional<OrderEntity> orderEntity = orderRepository.findById(id);
+        orderEntity.orElseThrow(() -> new OrderServiceException("Zamówienie nie zostało anulowane, " +
+                "ponieważ takie nie istnieje"));
+        orderEntity.get().getProductEntityList()
+                .stream()
+                .forEach(e -> e.updateProductStockStatusAfterCancelingOrder(orderEntity.get().getQuantity()));
+        orderRepository.save(orderEntity.get());
+    }
+
     private static void rejectIncompleteOrder(OrderDto orderDto, List<ProductEntity> productEntities) {
         if (orderDto.getProducts().size() > productEntities.size()) {
             throw new OrderServiceException("Zamówienie zostało odrzucone, ponieważ niektóre pozycje" +
