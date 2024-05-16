@@ -7,6 +7,9 @@ import pl.akademiaspecjalistowit.transactionalorder.product.ProductEntity;
 import pl.akademiaspecjalistowit.transactionalorder.product.ProductException;
 import pl.akademiaspecjalistowit.transactionalorder.product.ProductReadService;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @AllArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -18,18 +21,27 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public void placeAnOrder(OrderDto orderDto) {
-        OrderEntity orderEntity = productReadService.getProductByName(orderDto.getProductName())
-                .map(productEntity -> {
-                    return placeAnOrderWithStockUpdates(orderDto, productEntity);
-                }).orElseThrow(() -> new OrderServiceException("Zamówienie nie może być zrealizowane, " +
-                        "ponieważ zawiera pozycję niedostępną w magazynie"));
+        List<ProductEntity> productEntities = orderDto.getProducts()
+                .stream()
+                .map(productReadService::getProductByName)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+        rejectIncompleteOrder(orderDto, productEntities);
+        OrderEntity orderEntity = placeAnOrderWithStockUpdates(orderDto, productEntities);
         orderRepository.save(orderEntity);
-        orderPlacedEventListener.notifyOrderPlaced(orderEntity);
     }
 
-    private static OrderEntity placeAnOrderWithStockUpdates(OrderDto orderDto, ProductEntity productEntity) {
+    private static void rejectIncompleteOrder(OrderDto orderDto, List<ProductEntity> productEntities) {
+        if (orderDto.getProducts().size() > productEntities.size()) {
+            throw new OrderServiceException("Zamówienie zostało odrzucone, ponieważ niektóre pozycje" +
+                    " są aktualnie niedostępne");
+        }
+    }
+
+    private static OrderEntity placeAnOrderWithStockUpdates(OrderDto orderDto, List<ProductEntity> productEntityList) {
         try {
-            return new OrderEntity(productEntity, orderDto.getQuantity());
+            return new OrderEntity(productEntityList, orderDto.getQuantity());
         } catch (ProductException e) {
             throw new OrderServiceException(
                     "Zamówienie nie może być zrealizowane, ponieważ ilość pozycji " +

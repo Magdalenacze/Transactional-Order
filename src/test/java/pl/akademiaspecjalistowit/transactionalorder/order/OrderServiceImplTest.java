@@ -62,8 +62,8 @@ class OrderServiceImplTest {
         //then
         orderIsNotSavedInTheDatabase();
         OrderServiceException orderServiceException = assertThrows(OrderServiceException.class, e);
-        assertThat(orderServiceException.getMessage()).contains("Zamówienie nie może być zrealizowane, " +
-                "ponieważ zawiera pozycję niedostępną w magazynie");
+        assertThat(orderServiceException.getMessage()).contains("Zamówienie zostało odrzucone, ponieważ " +
+                "niektóre pozycje są aktualnie niedostępne");
     }
 
     @Test
@@ -82,7 +82,6 @@ class OrderServiceImplTest {
                 "ponieważ ilość pozycji w magazynie jest niewystarczająca");
     }
 
-
     @Test
     public void order_will_not_be_placed_if_input_values_are_incorrect() {
         //given
@@ -96,19 +95,20 @@ class OrderServiceImplTest {
     }
 
     private void productForTestOrderIsAvailable(OrderDto orderDto) {
-        productService.addProduct(new ProductDto(
-            orderDto.getProductName(),
-                (orderDto.getQuantity() + 1)));
+        orderDto.getProducts()
+                .stream()
+                .forEach(e -> productService.addProduct(
+                        new ProductDto(e, orderDto.getQuantity() + 1)));
     }
 
     private void productForTestOrderIsAvailableWithQuantity(OrderDto orderDto, int quantity) {
-        productService.addProduct(new ProductDto(
-            orderDto.getProductName(),
-            quantity));
+        orderDto.getProducts()
+                .stream()
+                .forEach(e -> productService.addProduct(new ProductDto(e, quantity)));
     }
 
     private void theOrderMatchesInputValues(OrderDto orderDto, OrderEntity orderEntity) {
-        assertThat(orderDto.getProductName()).isEqualTo(orderEntity.getProductEntity().getName());
+        assertThat(orderDto.getProducts().get(0)).isEqualTo(orderEntity.getProductEntityList().get(0).getName());
         assertThat(orderDto.getQuantity()).isEqualTo(orderEntity.getQuantity());
     }
 
@@ -125,11 +125,11 @@ class OrderServiceImplTest {
 
     private OrderDto prepareValidOrderDto() {
         int validQuantity = 10;
-        return new OrderDto("exampleProduct", validQuantity);
+        return new OrderDto(List.of("exampleProduct"), validQuantity);
     }
 
     private OrderDto prepareInvalidOrderDto() {
-        int validQuantity = -1;
-        return new OrderDto("exampleProduct", validQuantity);
+        int inValidQuantity = -1;
+        return new OrderDto(List.of("exampleProduct"), inValidQuantity);
     }
 }

@@ -9,15 +9,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import pl.akademiaspecjalistowit.transactionalorder.order.OrderEntity;
 
+import java.util.List;
+
 class ProductEntityTest {
 
     @Test
     public void should_throw_exception_if_product_quantity_is_insufficient() {
         //given
-        ProductEntity pizza = new ProductEntity("pizza", 10);
+        List<ProductEntity> productEntityList = List.of(
+                new ProductEntity("pizza", 12),
+                new ProductEntity("cola", 15));
 
         //when
-        Executable e = () -> new OrderEntity(pizza, 12);
+        Executable e = () -> new OrderEntity(productEntityList, 17);
 
         //then
         ProductException productException = assertThrows(ProductException.class, e);
@@ -27,10 +31,12 @@ class ProductEntityTest {
     @Test
     public void should_not_throw_exception_if_product_quantity_is_sufficient() {
         //given
-        ProductEntity pizza = new ProductEntity("pizza", 12);
+        List<ProductEntity> productEntityList = List.of(
+                new ProductEntity("pizza", 12),
+                new ProductEntity("cola", 15));
 
         //when
-        Executable e = () -> new OrderEntity(pizza, 12);
+        Executable e = () -> new OrderEntity(productEntityList, 12);
 
         //then
         assertDoesNotThrow(e);
@@ -39,13 +45,18 @@ class ProductEntityTest {
     @Test
     public void order_decreases_product_amount() {
         //given
-        int initialPizzaQuantity = 12;
-        ProductEntity pizza = new ProductEntity("pizza", initialPizzaQuantity);
+        int initialQuantity = 12;
+        List<ProductEntity> productEntityList = List.of(
+                new ProductEntity("pizza", initialQuantity),
+                new ProductEntity("cola", initialQuantity));
 
         //when
-        OrderEntity pizzaOrder = new OrderEntity(pizza, 10);
+        OrderEntity orderEntity = new OrderEntity(productEntityList, 10);
 
         //then
-        assertThat(pizza.getQuantity()).isEqualTo(initialPizzaQuantity - pizzaOrder.getQuantity());
+        assertThat(productEntityList.get(0).getQuantity())
+                .isEqualTo(initialQuantity - orderEntity.getQuantity());
+        assertThat(productEntityList.get(1).getQuantity())
+                .isEqualTo(initialQuantity - orderEntity.getQuantity());
     }
 }
