@@ -34,12 +34,14 @@ public class ProductServiceImpl implements ProductService, ProductReadService, O
         return productRepository.getProductEntityByName(productName);
     }
 
-    private void removeBoughtOutProductsByName(String productName){
-        productRepository.removeBoughtOutProducts(productName);
+    private void removeBoughtOutProductsByName(List<ProductEntity> productEntityList){
+        productEntityList
+                .stream()
+                .forEach(e -> productRepository.removeBoughtOutProducts(e.getName()));
     }
 
     @Override
     public void notifyOrderPlaced(OrderEntity orderEntityAfterValidations) {
-        removeBoughtOutProductsByName(orderEntityAfterValidations.getProductEntity().getName());
+        removeBoughtOutProductsByName(orderEntityAfterValidations.getProductEntityList());
     }
 }

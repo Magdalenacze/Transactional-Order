@@ -66,7 +66,7 @@ class ProductServiceTest {
 //        int initialPizzaQuantity = 12;
 //        ProductDto pizza = new ProductDto("pizza", initialPizzaQuantity);
 //        productService.addProduct(pizza);
-//        OrderDto pizzaOrder = new OrderDto("pizza", 12);
+//        OrderDto pizzaOrder = new OrderDto(List.of("pizza"), 12);
 //
 //        //when
 //        orderService.placeAnOrder(pizzaOrder);

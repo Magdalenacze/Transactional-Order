@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import pl.akademiaspecjalistowit.transactionalorder.product.ProductEntity;
 
+import java.util.List;
+
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -17,15 +19,17 @@ public class OrderEntity {
 
     private Integer quantity;
 
-    @OneToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private ProductEntity productEntity;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "orders_products",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id"))
+    private List<ProductEntity> productEntityList;
 
-    public OrderEntity(ProductEntity productEntity, Integer quantity) {
-        this.productEntity = productEntity;
+    public OrderEntity(List<ProductEntity> productEntityList, Integer quantity) {
+        this.productEntityList = productEntityList;
         this.quantity = quantity;
         validate(quantity);
-        productEntity.applyOrder(this);
+        productEntityList.forEach(e -> e.applyOrder(this));
     }
 
     private void validate(Integer quantity) {
