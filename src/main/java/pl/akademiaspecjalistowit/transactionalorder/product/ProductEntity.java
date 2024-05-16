@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import java.util.List;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -59,5 +58,9 @@ public class ProductEntity {
         if (this.quantity.compareTo(orderEntity.getQuantity()) < 0) {
             throw new ProductException("Ilość produktów nie jest wystarczająca");
         }
+    }
+
+    public void updateProductStockStatusAfterCancelingOrder(Integer quantityOrdered) {
+        this.quantity += quantityOrdered;
     }
 }
