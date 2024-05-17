@@ -33,8 +33,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void realizationOrder(Long id) {
-        orderRepository.deleteById(id);
+    public void realizationOrder(Long orderId) {
+        List<ProductEntity> productEntityList = orderRepository.findById(orderId).get().getProductEntityList();
+        orderRepository.deleteById(orderId);
+        orderPlacedEventListener.notifyOrderPlaced(productEntityList);
     }
 
     @Override

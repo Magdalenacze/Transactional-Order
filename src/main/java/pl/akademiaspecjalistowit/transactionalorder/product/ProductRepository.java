@@ -14,6 +14,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM ProductEntity p WHERE p.quantity = 0 AND p.name =:productName")
+    @Query("DELETE FROM ProductEntity p WHERE p.quantity = 0 AND p.name =:productName and not exists " +
+            "(SELECT 1 FROM OrderEntity op join op.productEntityList pl WHERE pl.id=p.id)")
     void removeBoughtOutProducts(String productName);
 }

@@ -1,5 +1,9 @@
 package pl.akademiaspecjalistowit.transactionalorder.order;
 
+import pl.akademiaspecjalistowit.transactionalorder.product.ProductEntity;
+
+import java.util.List;
+
 public interface OrderPlacedEventListener {
-    void notifyOrderPlaced(OrderEntity orderEntityAfterValidations);
+    void notifyOrderPlaced(List<ProductEntity> productEntityList);
 }
