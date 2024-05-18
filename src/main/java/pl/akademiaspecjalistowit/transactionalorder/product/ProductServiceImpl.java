@@ -6,12 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.akademiaspecjalistowit.transactionalorder.order.OrderEntity;
-import pl.akademiaspecjalistowit.transactionalorder.order.OrderPlacedEventListener;
+import pl.akademiaspecjalistowit.transactionalorder.order.OrderRealizedEventListener;
 
 @AllArgsConstructor
 @Service
 @Slf4j
-public class ProductServiceImpl implements ProductService, ProductReadService, OrderPlacedEventListener {
+public class ProductServiceImpl implements ProductService, ProductReadService, OrderRealizedEventListener {
 
     private final ProductRepository productRepository;
 
@@ -41,7 +41,7 @@ public class ProductServiceImpl implements ProductService, ProductReadService, O
     }
 
     @Override
-    public void notifyOrderPlaced(List<ProductEntity> productEntityList) {
-        removeBoughtOutProductsByName(productEntityList);
+    public void notifyOrderRealized(OrderEntity orderEntity) {
+        removeBoughtOutProductsByName(orderEntity.getProductEntityList());
     }
 }

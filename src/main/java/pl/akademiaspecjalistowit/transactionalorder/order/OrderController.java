@@ -24,6 +24,6 @@ public class OrderController {
 
     @PostMapping("{id}")
     public void realizationOrder(@PathVariable("id") Long id) {
-        orderService.realizationOrder(id);
+        orderService.orderRealization(id);
     }
 }

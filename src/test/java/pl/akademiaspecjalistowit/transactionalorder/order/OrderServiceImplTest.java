@@ -119,9 +119,10 @@ class OrderServiceImplTest {
         productService.addProduct(productDto);
         OrderDto orderDto = new OrderDto(List.of("pizza"), 1);
         orderService.placeAnOrder(orderDto);
+        OrderEntity orderEntity = orderRepository.findAll().get(0);
 
         //when
-        Executable e = () -> orderService.cancelOrder(4l);
+        Executable e = () -> orderService.cancelOrder(orderEntity.getId());
 
         //then
         assertDoesNotThrow(e);
@@ -134,9 +135,10 @@ class OrderServiceImplTest {
         productService.addProduct(productDto);
         OrderDto orderDto = new OrderDto(List.of("pizza"), 1);
         orderService.placeAnOrder(orderDto);
+        OrderEntity orderEntity = orderRepository.findAll().get(0);
 
         //when
-        orderService.realizationOrder(9l);
+        orderService.orderRealization(orderEntity.getId());
 
         //then
         List<OrderEntity> all = orderRepository.findAll();
@@ -152,10 +154,11 @@ class OrderServiceImplTest {
         orderService.placeAnOrder(orderDto1);
         OrderDto orderDto2 = new OrderDto(List.of("pizza"), 2);
         orderService.placeAnOrder(orderDto2);
+        List<OrderEntity> orderEntityList = orderRepository.findAll();
 
         //when
-        orderService.realizationOrder(5l);
-        orderService.realizationOrder(6l);
+        orderService.orderRealization(orderEntityList.get(0).getId());
+        orderService.orderRealization(orderEntityList.get(1).getId());
 
         //then
         List<ProductEntity> allProducts = productRepository.findAll();
@@ -173,10 +176,11 @@ class OrderServiceImplTest {
         orderService.placeAnOrder(orderDto1);
         OrderDto orderDto2 = new OrderDto(List.of("pizza"), 1);
         orderService.placeAnOrder(orderDto2);
+        List<OrderEntity> orderEntityList = orderRepository.findAll();
+        orderService.orderRealization(orderEntityList.get(0).getId());
 
         //when
-        orderService.realizationOrder(7l);
-        orderService.realizationOrder(8l);
+        orderService.orderRealization(orderEntityList.get(1).getId());
 
         //then
         List<ProductEntity> allProducts = productRepository.findAll();
@@ -194,9 +198,10 @@ class OrderServiceImplTest {
         orderService.placeAnOrder(orderDto1);
         OrderDto orderDto2 = new OrderDto(List.of("pizza"), 2);
         orderService.placeAnOrder(orderDto2);
+        List<OrderEntity> orderEntityList = orderRepository.findAll();
 
         //when
-        orderService.realizationOrder(2l);
+        orderService.orderRealization(orderEntityList.get(0).getId());
 
         //then
         List<ProductEntity> allProducts = productRepository.findAll();

@@ -4,7 +4,7 @@ public interface OrderService {
 
     void placeAnOrder(OrderDto orderDto);
 
-    void realizationOrder(Long id);
+    void orderRealization(Long id);
 
     void cancelOrder(Long id);
 }

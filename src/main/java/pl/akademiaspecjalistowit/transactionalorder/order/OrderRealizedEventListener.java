@@ -4,6 +4,6 @@ import pl.akademiaspecjalistowit.transactionalorder.product.ProductEntity;
 
 import java.util.List;
 
-public interface OrderPlacedEventListener {
-    void notifyOrderPlaced(List<ProductEntity> productEntityList);
+public interface OrderRealizedEventListener {
+    void notifyOrderRealized(OrderEntity orderEntity);
 }
