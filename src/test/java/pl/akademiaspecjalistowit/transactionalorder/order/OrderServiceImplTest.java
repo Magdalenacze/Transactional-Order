@@ -119,9 +119,10 @@ class OrderServiceImplTest {
         productService.addProduct(productDto);
         OrderDto orderDto = new OrderDto(List.of("pizza"), 1);
         orderService.placeAnOrder(orderDto);
+        OrderEntity orderEntity = orderRepository.findAll().get(0);
 
         //when
-        Executable e = () -> orderService.cancelOrder(2l);
+        Executable e = () -> orderService.cancelOrder(orderEntity.getId());
 
         //then
         assertDoesNotThrow(e);
@@ -134,13 +135,79 @@ class OrderServiceImplTest {
         productService.addProduct(productDto);
         OrderDto orderDto = new OrderDto(List.of("pizza"), 1);
         orderService.placeAnOrder(orderDto);
+        OrderEntity orderEntity = orderRepository.findAll().get(0);
 
         //when
-        orderService.realizationOrder(3l);
+        orderService.orderRealization(orderEntity.getId());
 
         //then
         List<OrderEntity> all = orderRepository.findAll();
         assertThat(all).hasSize(0);
+    }
+
+    @Test
+    public void should_delete_product_with_zero_stock_after_all_orders_containing_that_product_have_been_realized() {
+        //given
+        ProductDto productDto = new ProductDto("pizza", 3);
+        productService.addProduct(productDto);
+        OrderDto orderDto1 = new OrderDto(List.of("pizza"), 1);
+        orderService.placeAnOrder(orderDto1);
+        OrderDto orderDto2 = new OrderDto(List.of("pizza"), 2);
+        orderService.placeAnOrder(orderDto2);
+        List<OrderEntity> orderEntityList = orderRepository.findAll();
+
+        //when
+        orderService.orderRealization(orderEntityList.get(0).getId());
+        orderService.orderRealization(orderEntityList.get(1).getId());
+
+        //then
+        List<ProductEntity> allProducts = productRepository.findAll();
+        assertThat(allProducts).hasSize(0);
+        List<OrderEntity> allOrders = orderRepository.findAll();
+        assertThat(allOrders).hasSize(0);
+    }
+
+    @Test
+    public void should_not_allow_delete_product_without_zero_stock_after_all_orders_containing_that_product_have_been_realized() {
+        //given
+        ProductDto productDto = new ProductDto("pizza", 3);
+        productService.addProduct(productDto);
+        OrderDto orderDto1 = new OrderDto(List.of("pizza"), 1);
+        orderService.placeAnOrder(orderDto1);
+        OrderDto orderDto2 = new OrderDto(List.of("pizza"), 1);
+        orderService.placeAnOrder(orderDto2);
+        List<OrderEntity> orderEntityList = orderRepository.findAll();
+        orderService.orderRealization(orderEntityList.get(0).getId());
+
+        //when
+        orderService.orderRealization(orderEntityList.get(1).getId());
+
+        //then
+        List<ProductEntity> allProducts = productRepository.findAll();
+        assertThat(allProducts).hasSize(1);
+        List<OrderEntity> allOrders = orderRepository.findAll();
+        assertThat(allOrders).hasSize(0);
+    }
+
+    @Test
+    public void should_not_allow_delete_product_without_zero_stock_after_some_orders_containing_that_product_have_been_realized() {
+        //given
+        ProductDto productDto = new ProductDto("pizza", 3);
+        productService.addProduct(productDto);
+        OrderDto orderDto1 = new OrderDto(List.of("pizza"), 1);
+        orderService.placeAnOrder(orderDto1);
+        OrderDto orderDto2 = new OrderDto(List.of("pizza"), 2);
+        orderService.placeAnOrder(orderDto2);
+        List<OrderEntity> orderEntityList = orderRepository.findAll();
+
+        //when
+        orderService.orderRealization(orderEntityList.get(0).getId());
+
+        //then
+        List<ProductEntity> allProducts = productRepository.findAll();
+        assertThat(allProducts).hasSize(1);
+        List<OrderEntity> allOrders = orderRepository.findAll();
+        assertThat(allOrders).hasSize(1);
     }
 
     private void productForTestOrderIsAvailable(OrderDto orderDto) {

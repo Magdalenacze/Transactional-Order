@@ -16,7 +16,7 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductReadService productReadService;
-    private final OrderPlacedEventListener orderPlacedEventListener;
+    private final OrderRealizedEventListener orderPlacedEventListener;
 
     @Override
     @Transactional
@@ -33,8 +33,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void realizationOrder(Long id) {
-        orderRepository.deleteById(id);
+    public void orderRealization(Long orderId) {
+        OrderEntity orderEntity = orderRepository.findById(orderId).get();
+        orderRepository.deleteById(orderId);
+        orderPlacedEventListener.notifyOrderRealized(orderEntity);
     }
 
     @Override
